@@ -1,0 +1,96 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container form-container">
+  <%- include('../partials/alerts') %>
+
+  <nav class="breadcrumb">
+    <a href="/">Dashboard</a> &raquo;
+    <a href="/tasks">Công việc</a> &raquo;
+    <a href="/tasks/<%= task.id %>">#<%= task.id %></a> &raquo;
+    <span>Chỉnh sửa</span>
+  </nav>
+
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">Chỉnh Sửa Công Việc #<%= task.id %></h1>
+    </div>
+    <div class="card-body">
+      <form action="/tasks/<%= task.id %>?_method=PUT" method="POST">
+        <div class="form-group">
+          <label for="project_id" class="form-label required">Thuộc Dự Án:</label>
+          <select name="project_id" id="project_id" class="form-control" required>
+            <% projects.forEach(function(p) { %>
+              <option value="<%= p.id %>" <%= String(task.project_id) === String(p.id) ? 'selected' : '' %>>
+                <%= p.name %>
+              </option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="title" class="form-label required">Tiêu Đề Công Việc:</label>
+          <input
+            type="text"
+            name="title"
+            id="title"
+            class="form-control"
+            value="<%= task.title || '' %>"
+            required
+            maxlength="200"
+          >
+          <small class="form-text">Tối đa 200 ký tự.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="description" class="form-label">Mô Tả Chi Tiết:</label>
+          <textarea
+            name="description"
+            id="description"
+            rows="4"
+            class="form-control"
+          ><%= task.description || '' %></textarea>
+        </div>
+
+        <div class="grid-3-col">
+          <div class="form-group">
+            <label for="status" class="form-label required">Trạng Thái:</label>
+            <select name="status" id="status" class="form-control" required>
+              <option value="TODO" <%= task.status === 'TODO' ? 'selected' : '' %>>Cần làm (TODO)</option>
+              <option value="IN_PROGRESS" <%= task.status === 'IN_PROGRESS' ? 'selected' : '' %>>Đang thực hiện (IN_PROGRESS)</option>
+              <option value="DONE" <%= task.status === 'DONE' ? 'selected' : '' %>>Hoàn thành (DONE)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="priority" class="form-label required">Độ Ưu Tiên:</label>
+            <select name="priority" id="priority" class="form-control" required>
+              <option value="LOW" <%= task.priority === 'LOW' ? 'selected' : '' %>>Thấp (LOW)</option>
+              <option value="MEDIUM" <%= task.priority === 'MEDIUM' ? 'selected' : '' %>>Trung bình (MEDIUM)</option>
+              <option value="HIGH" <%= task.priority === 'HIGH' ? 'selected' : '' %>>Cao (HIGH)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="assigned_to" class="form-label">Người Phụ Trách:</label>
+            <select name="assigned_to" id="assigned_to" class="form-control">
+              <option value="">-- Chưa phân công --</option>
+              <% users.forEach(function(u) { %>
+                <option value="<%= u.id %>" <%= String(task.assigned_to) === String(u.id) ? 'selected' : '' %>>
+                  <%= u.full_name %> (<%= u.role %>)
+                </option>
+              <% }); %>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Cập Nhật Công Việc</button>
+          <a href="/tasks/<%= task.id %>" class="btn btn-outline">Hủy Bỏ</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

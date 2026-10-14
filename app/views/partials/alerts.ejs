@@ -1,0 +1,27 @@
+<% if (typeof success !== 'undefined' && success) { %>
+  <div class="alert alert-success">
+    <span>✓ <%= success %></span>
+    <button type="button" class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+  </div>
+<% } %>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert alert-danger">
+    <span>⚠ <%= error %></span>
+    <button type="button" class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+  </div>
+<% } %>
+
+<% if (typeof errors !== 'undefined' && errors && errors.length > 0) { %>
+  <div class="alert alert-danger">
+    <div>
+      <strong>Vui lòng kiểm tra các thông tin sau:</strong>
+      <ul class="alert-list">
+        <% errors.forEach(function(errItem) { %>
+          <li><%= errItem %></li>
+        <% }); %>
+      </ul>
+    </div>
+    <button type="button" class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+  </div>
+<% } %>

@@ -1,0 +1,28 @@
+<header class="navbar">
+  <div class="container nav-container">
+    <a href="/" class="brand-logo">
+      <span class="logo-icon">📋</span>
+      <span class="logo-text">ProjectManager</span>
+    </a>
+
+    <nav class="nav-links">
+      <a href="/" class="nav-item <%= typeof currentNav !== 'undefined' && currentNav === 'dashboard' ? 'active' : '' %>">
+        📊 Dashboard
+      </a>
+      <a href="/projects" class="nav-item <%= typeof currentNav !== 'undefined' && currentNav === 'projects' ? 'active' : '' %>">
+        📁 Dự Án
+      </a>
+      <a href="/tasks" class="nav-item <%= typeof currentNav !== 'undefined' && currentNav === 'tasks' ? 'active' : '' %>">
+        ✅ Công Việc
+      </a>
+      <a href="/users" class="nav-item <%= typeof currentNav !== 'undefined' && currentNav === 'users' ? 'active' : '' %>">
+        👥 Người Dùng
+      </a>
+    </nav>
+
+    <div class="nav-actions">
+      <a href="/projects/new" class="btn btn-primary btn-sm">+ Tạo Dự Án</a>
+      <a href="/tasks/new" class="btn btn-outline btn-sm">+ Việc Mới</a>
+    </div>
+  </div>
+</header>

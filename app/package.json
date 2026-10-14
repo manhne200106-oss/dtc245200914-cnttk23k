@@ -1,0 +1,19 @@
+{
+  "name": "project-management-app",
+  "version": "1.0.0",
+  "description": "Project Management Web Application - Phase 1",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "method-override": "^3.0.0",
+    "morgan": "^1.10.0",
+    "pg": "^8.13.1"
+  }
+}

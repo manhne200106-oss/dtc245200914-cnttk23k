@@ -1,0 +1,160 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container">
+  <%- include('../partials/alerts') %>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Tổng Quan Hệ Thống</h1>
+      <p class="page-subtitle">Theo dõi tiến độ các dự án và tình trạng công việc</p>
+    </div>
+    <div class="header-actions">
+      <a href="/projects/new" class="btn btn-primary">+ Tạo Dự Án Mới</a>
+      <a href="/tasks/new" class="btn btn-secondary">+ Tạo Công Việc</a>
+    </div>
+  </div>
+
+  <!-- Metric Cards -->
+  <section class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon bg-blue">📁</div>
+      <div class="metric-data">
+        <span class="metric-label">Tổng số dự án</span>
+        <span class="metric-value"><%= stats.totalProjects %></span>
+      </div>
+      <a href="/projects" class="metric-link">Xem tất cả &rarr;</a>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon bg-indigo">📝</div>
+      <div class="metric-data">
+        <span class="metric-label">Tổng số công việc</span>
+        <span class="metric-value"><%= stats.totalTasks %></span>
+      </div>
+      <a href="/tasks" class="metric-link">Xem tất cả &rarr;</a>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon bg-amber">⚡</div>
+      <div class="metric-data">
+        <span class="metric-label">Đang thực hiện</span>
+        <span class="metric-value"><%= stats.tasksInProgress %></span>
+      </div>
+      <a href="/tasks?status=IN_PROGRESS" class="metric-link">Xem chi tiết &rarr;</a>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon bg-emerald">✅</div>
+      <div class="metric-data">
+        <span class="metric-label">Đã hoàn thành</span>
+        <span class="metric-value"><%= stats.tasksDone %></span>
+      </div>
+      <a href="/tasks?status=DONE" class="metric-link">Xem chi tiết &rarr;</a>
+    </div>
+  </section>
+
+  <!-- Two Column Layout: Recent Projects & High Priority Tasks -->
+  <div class="grid-2-col">
+    <!-- Recent Projects -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Dự Án Gần Đây</h2>
+        <a href="/projects" class="btn btn-sm btn-outline">Xem tất cả</a>
+      </div>
+      <div class="card-body">
+        <% if (recentProjects && recentProjects.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Tên Dự Án</th>
+                  <th>Trạng Thái</th>
+                  <th>Thành Viên</th>
+                  <th>Công Việc</th>
+                  <th>Hành Động</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentProjects.forEach(function(proj) {
+                  const badge = getStatusBadge(proj.status);
+                %>
+                  <tr>
+                    <td>
+                      <a href="/projects/<%= proj.id %>" class="font-bold text-primary">
+                        <%= proj.name %>
+                      </a>
+                    </td>
+                    <td><span class="badge <%= badge.class %>"><%= badge.label %></span></td>
+                    <td>👥 <%= proj.member_count %></td>
+                    <td>📝 <%= proj.task_count %></td>
+                    <td>
+                      <a href="/projects/<%= proj.id %>" class="btn btn-xs btn-outline">Chi tiết</a>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <p>Chưa có dự án nào trong hệ thống.</p>
+            <a href="/projects/new" class="btn btn-primary btn-sm">+ Tạo dự án đầu tiên</a>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- Priority Tasks -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Công Việc Ưu Tiên Cao</h2>
+        <a href="/tasks?priority=HIGH" class="btn btn-sm btn-outline">Xem tất cả</a>
+      </div>
+      <div class="card-body">
+        <% if (highPriorityTasks && highPriorityTasks.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Công Việc</th>
+                  <th>Dự Án</th>
+                  <th>Trạng Thái</th>
+                  <th>Người Phụ Trách</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% highPriorityTasks.forEach(function(t) {
+                  const statusBadge = getStatusBadge(t.status);
+                %>
+                  <tr>
+                    <td>
+                      <a href="/tasks/<%= t.id %>" class="font-bold text-dark">
+                        <%= t.title %>
+                      </a>
+                    </td>
+                    <td>
+                      <span class="text-muted"><%= t.project_name %></span>
+                    </td>
+                    <td>
+                      <span class="badge <%= statusBadge.class %>"><%= statusBadge.label %></span>
+                    </td>
+                    <td>
+                      <%= t.assignee_name || '<i class="text-muted">Chưa gán</i>' %>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <p>Hiện không có công việc ưu tiên cao nào cần xử lý gấp.</p>
+          </div>
+        <% } %>
+      </div>
+    </section>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

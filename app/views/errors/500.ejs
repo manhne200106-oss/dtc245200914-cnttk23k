@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container error-page-container">
+  <div class="card error-card">
+    <div class="error-code text-danger"><%= typeof statusCode !== 'undefined' ? statusCode : 500 %></div>
+    <h1 class="error-title">Lỗi Xử Lý Hệ Thống</h1>
+    <p class="error-message">
+      <%= typeof message !== 'undefined' ? message : 'Hệ thống đã gặp sự cố không mong muốn trong khi xử lý yêu cầu của bạn.' %>
+    </p>
+    <p class="text-muted text-sm">
+      Chi tiết lỗi đã được ghi lại trong hệ thống log để đội ngũ kỹ thuật phân tích và khắc phục.
+    </p>
+    <div class="error-actions">
+      <a href="/" class="btn btn-primary">Quay Về Trang Chủ</a>
+      <button onclick="window.history.back()" class="btn btn-outline">Quay Lại Trang Trước</button>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

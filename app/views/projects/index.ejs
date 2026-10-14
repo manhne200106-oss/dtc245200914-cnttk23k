@@ -1,0 +1,107 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container">
+  <%- include('../partials/alerts') %>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản Lý Dự Án</h1>
+      <p class="page-subtitle">Danh sách các dự án đang triển khai và quản lý trong hệ thống</p>
+    </div>
+    <div class="header-actions">
+      <a href="/projects/new" class="btn btn-primary">+ Tạo Dự Án Mới</a>
+    </div>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="card toolbar-card">
+    <form action="/projects" method="GET" class="filter-form">
+      <div class="form-group-inline">
+        <label for="status" class="filter-label">Trạng thái:</label>
+        <select name="status" id="status" class="form-control select-sm" onchange="this.form.submit()">
+          <option value="ALL" <%= filterStatus === 'ALL' ? 'selected' : '' %>>Tất cả trạng thái</option>
+          <option value="PLANNING" <%= filterStatus === 'PLANNING' ? 'selected' : '' %>>Lập kế hoạch</option>
+          <option value="IN_PROGRESS" <%= filterStatus === 'IN_PROGRESS' ? 'selected' : '' %>>Đang thực hiện</option>
+          <option value="COMPLETED" <%= filterStatus === 'COMPLETED' ? 'selected' : '' %>>Hoàn thành</option>
+          <option value="ON_HOLD" <%= filterStatus === 'ON_HOLD' ? 'selected' : '' %>>Tạm hoãn</option>
+        </select>
+      </div>
+
+      <div class="form-group-inline search-group">
+        <input
+          type="text"
+          name="search"
+          class="form-control input-sm"
+          placeholder="Tìm theo tên hoặc mô tả dự án..."
+          value="<%= searchQuery %>"
+        >
+        <button type="submit" class="btn btn-sm btn-secondary">Tìm kiếm</button>
+        <% if (filterStatus !== 'ALL' || searchQuery) { %>
+          <a href="/projects" class="btn btn-sm btn-outline">Đặt lại</a>
+        <% } %>
+      </div>
+    </form>
+  </div>
+
+  <!-- Projects List -->
+  <div class="card">
+    <div class="card-body">
+      <% if (projects && projects.length > 0) { %>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mã</th>
+                <th>Tên Dự Án</th>
+                <th>Mô Tả</th>
+                <th>Trạng Thái</th>
+                <th>Thành Viên</th>
+                <th>Công Việc</th>
+                <th>Ngày Cập Nhật</th>
+                <th class="text-right">Hành Động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% projects.forEach(function(proj) {
+                const badge = getStatusBadge(proj.status);
+              %>
+                <tr>
+                  <td><code>#<%= proj.id %></code></td>
+                  <td>
+                    <a href="/projects/<%= proj.id %>" class="font-bold text-primary">
+                      <%= proj.name %>
+                    </a>
+                  </td>
+                  <td class="text-muted text-truncate" style="max-width: 250px;">
+                    <%= proj.description || 'Chưa có mô tả' %>
+                  </td>
+                  <td>
+                    <span class="badge <%= badge.class %>"><%= badge.label %></span>
+                  </td>
+                  <td>👥 <%= proj.member_count %></td>
+                  <td>📝 <%= proj.task_count %></td>
+                  <td class="text-muted"><%= formatDate(proj.updated_at) %></td>
+                  <td class="text-right table-actions">
+                    <a href="/projects/<%= proj.id %>" class="btn btn-xs btn-outline" title="Xem chi tiết">Chi tiết</a>
+                    <a href="/projects/<%= proj.id %>/edit" class="btn btn-xs btn-secondary" title="Chỉnh sửa">Sửa</a>
+                    <form action="/projects/<%= proj.id %>?_method=DELETE" method="POST" class="inline-form" onsubmit="return confirm('Bạn có chắc chắn muốn xóa dự án này cùng toàn bộ công việc liên quan?');">
+                      <button type="submit" class="btn btn-xs btn-danger" title="Xóa">Xóa</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <p>Không tìm thấy dự án nào phù hợp với điều kiện tìm kiếm.</p>
+          <a href="/projects/new" class="btn btn-primary btn-sm">+ Tạo dự án mới</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

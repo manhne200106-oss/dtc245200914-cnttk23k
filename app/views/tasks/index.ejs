@@ -1,0 +1,137 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container">
+  <%- include('../partials/alerts') %>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản Lý Công Việc</h1>
+      <p class="page-subtitle">Theo dõi, phân công và kiểm soát tiến độ các đầu việc</p>
+    </div>
+    <div class="header-actions">
+      <a href="/tasks/new" class="btn btn-primary">+ Tạo Công Việc Mới</a>
+    </div>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="card toolbar-card">
+    <form action="/tasks" method="GET" class="filter-form">
+      <div class="form-group-inline">
+        <label for="projectId" class="filter-label">Dự án:</label>
+        <select name="projectId" id="projectId" class="form-control select-sm" onchange="this.form.submit()">
+          <option value="">Tất cả dự án</option>
+          <% projects.forEach(function(p) { %>
+            <option value="<%= p.id %>" <%= selectedProject === p.id ? 'selected' : '' %>>
+              <%= p.name %>
+            </option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div class="form-group-inline">
+        <label for="status" class="filter-label">Trạng thái:</label>
+        <select name="status" id="status" class="form-control select-sm" onchange="this.form.submit()">
+          <option value="ALL" <%= selectedStatus === 'ALL' ? 'selected' : '' %>>Tất cả trạng thái</option>
+          <option value="TODO" <%= selectedStatus === 'TODO' ? 'selected' : '' %>>Cần làm (TODO)</option>
+          <option value="IN_PROGRESS" <%= selectedStatus === 'IN_PROGRESS' ? 'selected' : '' %>>Đang thực hiện (IN_PROGRESS)</option>
+          <option value="DONE" <%= selectedStatus === 'DONE' ? 'selected' : '' %>>Hoàn thành (DONE)</option>
+        </select>
+      </div>
+
+      <div class="form-group-inline">
+        <label for="priority" class="filter-label">Độ ưu tiên:</label>
+        <select name="priority" id="priority" class="form-control select-sm" onchange="this.form.submit()">
+          <option value="ALL" <%= selectedPriority === 'ALL' ? 'selected' : '' %>>Tất cả ưu tiên</option>
+          <option value="HIGH" <%= selectedPriority === 'HIGH' ? 'selected' : '' %>>Cao (HIGH)</option>
+          <option value="MEDIUM" <%= selectedPriority === 'MEDIUM' ? 'selected' : '' %>>Trung bình (MEDIUM)</option>
+          <option value="LOW" <%= selectedPriority === 'LOW' ? 'selected' : '' %>>Thấp (LOW)</option>
+        </select>
+      </div>
+
+      <div class="form-group-inline search-group">
+        <input
+          type="text"
+          name="search"
+          class="form-control input-sm"
+          placeholder="Tìm tiêu đề, mô tả..."
+          value="<%= searchQuery %>"
+        >
+        <button type="submit" class="btn btn-sm btn-secondary">Tìm</button>
+        <% if (selectedProject || selectedStatus !== 'ALL' || selectedPriority !== 'ALL' || searchQuery) { %>
+          <a href="/tasks" class="btn btn-sm btn-outline">Đặt lại</a>
+        <% } %>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tasks Table -->
+  <div class="card">
+    <div class="card-body">
+      <% if (tasks && tasks.length > 0) { %>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mã</th>
+                <th>Tiêu Đề Công Việc</th>
+                <th>Dự Án</th>
+                <th>Trạng Thái</th>
+                <th>Ưu Tiên</th>
+                <th>Người Phụ Trách</th>
+                <th>Bình Luận</th>
+                <th>Cập Nhật</th>
+                <th class="text-right">Hành Động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% tasks.forEach(function(t) {
+                const statusBadge = getStatusBadge(t.status);
+                const priorityBadge = getPriorityBadge(t.priority);
+              %>
+                <tr>
+                  <td><code>#<%= t.id %></code></td>
+                  <td>
+                    <a href="/tasks/<%= t.id %>" class="font-bold text-dark">
+                      <%= t.title %>
+                    </a>
+                  </td>
+                  <td>
+                    <a href="/projects/<%= t.project_id %>" class="text-primary text-sm font-semibold">
+                      <%= t.project_name %>
+                    </a>
+                  </td>
+                  <td><span class="badge <%= statusBadge.class %>"><%= statusBadge.label %></span></td>
+                  <td><span class="badge <%= priorityBadge.class %>"><%= priorityBadge.label %></span></td>
+                  <td>
+                    <% if (t.assignee_name) { %>
+                      <span class="user-chip">👤 <%= t.assignee_name %></span>
+                    <% } else { %>
+                      <span class="text-muted text-sm">Chưa phân công</span>
+                    <% } %>
+                  </td>
+                  <td>💬 <%= t.comment_count %></td>
+                  <td class="text-muted text-sm"><%= formatDate(t.updated_at) %></td>
+                  <td class="text-right table-actions">
+                    <a href="/tasks/<%= t.id %>" class="btn btn-xs btn-outline" title="Xem chi tiết">Xem</a>
+                    <a href="/tasks/<%= t.id %>/edit" class="btn btn-xs btn-secondary" title="Chỉnh sửa">Sửa</a>
+                    <form action="/tasks/<%= t.id %>?_method=DELETE" method="POST" class="inline-form" onsubmit="return confirm('Bạn có chắc chắn muốn xóa công việc này?');">
+                      <button type="submit" class="btn btn-xs btn-danger" title="Xóa">Xóa</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <p>Không tìm thấy công việc nào phù hợp với bộ lọc hiện tại.</p>
+          <a href="/tasks/new" class="btn btn-primary btn-sm">+ Tạo công việc mới</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

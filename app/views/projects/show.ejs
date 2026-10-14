@@ -1,0 +1,163 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container">
+  <%- include('../partials/alerts') %>
+
+  <!-- Breadcrumb navigation -->
+  <nav class="breadcrumb">
+    <a href="/">Dashboard</a> &raquo;
+    <a href="/projects">Dự án</a> &raquo;
+    <span><%= project.name %></span>
+  </nav>
+
+  <!-- Project Header Card -->
+  <div class="card detail-header-card">
+    <div class="detail-header-flex">
+      <div>
+        <div class="detail-title-row">
+          <h1 class="page-title"><%= project.name %></h1>
+          <% const badge = getStatusBadge(project.status); %>
+          <span class="badge <%= badge.class %> badge-lg"><%= badge.label %></span>
+        </div>
+        <p class="project-desc"><%= project.description || 'Chưa có mô tả cho dự án này.' %></p>
+        <div class="meta-row">
+          <span>📅 Ngày tạo: <strong><%= formatDate(project.created_at) %></strong></span>
+          <span>🔄 Cập nhật: <strong><%= formatDate(project.updated_at) %></strong></span>
+          <span>👥 Thành viên: <strong><%= project.member_count %></strong></span>
+          <span>📝 Công việc: <strong><%= project.task_count %></strong></span>
+        </div>
+      </div>
+      <div class="detail-actions">
+        <a href="/projects/<%= project.id %>/edit" class="btn btn-secondary">✏ Sửa Dự Án</a>
+        <form action="/projects/<%= project.id %>?_method=DELETE" method="POST" class="inline-form" onsubmit="return confirm('CẢNH BÁO: Xóa dự án sẽ xóa toàn bộ công việc và bình luận liên quan. Bạn có chắc muốn xóa?');">
+          <button type="submit" class="btn btn-danger">🗑 Xóa Dự Án</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2-col-wide">
+    <!-- Tasks Section (Wider) -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Danh Sách Công Việc (<%= tasks.length %>)</h2>
+        <a href="/tasks/new?project_id=<%= project.id %>" class="btn btn-sm btn-primary">+ Việc Mới</a>
+      </div>
+      <div class="card-body">
+        <% if (tasks && tasks.length > 0) { %>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Tiêu Đề</th>
+                  <th>Trạng Thái</th>
+                  <th>Ưu Tiên</th>
+                  <th>Người Phụ Trách</th>
+                  <th>Bình Luận</th>
+                  <th class="text-right">Hành Động</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% tasks.forEach(function(t) {
+                  const taskStatus = getStatusBadge(t.status);
+                  const taskPriority = getPriorityBadge(t.priority);
+                %>
+                  <tr>
+                    <td>
+                      <a href="/tasks/<%= t.id %>" class="font-bold text-dark">
+                        <%= t.title %>
+                      </a>
+                    </td>
+                    <td><span class="badge <%= taskStatus.class %>"><%= taskStatus.label %></span></td>
+                    <td><span class="badge <%= taskPriority.class %>"><%= taskPriority.label %></span></td>
+                    <td><%= t.assignee_name || '<i class="text-muted">Chưa gán</i>' %></td>
+                    <td>💬 <%= t.comment_count %></td>
+                    <td class="text-right table-actions">
+                      <a href="/tasks/<%= t.id %>" class="btn btn-xs btn-outline">Xem</a>
+                      <a href="/tasks/<%= t.id %>/edit" class="btn btn-xs btn-secondary">Sửa</a>
+                      <form action="/tasks/<%= t.id %>?_method=DELETE" method="POST" class="inline-form" onsubmit="return confirm('Xóa công việc này?');">
+                        <button type="submit" class="btn btn-xs btn-danger">Xóa</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } else { %>
+          <div class="empty-state">
+            <p>Dự án này chưa có công việc nào.</p>
+            <a href="/tasks/new?project_id=<%= project.id %>" class="btn btn-primary btn-sm">+ Tạo công việc đầu tiên</a>
+          </div>
+        <% } %>
+      </div>
+    </section>
+
+    <!-- Project Members Section -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">Thành Viên Dự Án (<%= members.length %>)</h2>
+      </div>
+      <div class="card-body">
+        <!-- Members List -->
+        <% if (members && members.length > 0) { %>
+          <div class="member-list">
+            <% members.forEach(function(mem) { %>
+              <div class="member-item">
+                <div class="member-avatar">
+                  <%= mem.full_name.charAt(0).toUpperCase() %>
+                </div>
+                <div class="member-info">
+                  <span class="member-name"><%= mem.full_name %></span>
+                  <span class="member-meta">
+                    <%= mem.email %> • <span class="badge badge-secondary"><%= mem.role %></span>
+                  </span>
+                </div>
+                <div class="member-action">
+                  <form action="/projects/<%= project.id %>/members/<%= mem.user_id %>?_method=DELETE" method="POST" onsubmit="return confirm('Xóa thành viên <%= mem.full_name %> khỏi dự án?');">
+                    <button type="submit" class="btn btn-xs btn-danger" title="Xóa khỏi dự án">&times;</button>
+                  </form>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p class="text-muted text-sm">Chưa có thành viên nào được gán vào dự án.</p>
+        <% } %>
+
+        <!-- Add Member Form -->
+        <hr class="divider">
+        <h3 class="card-subtitle">Thêm Thành Viên Vào Dự Án</h3>
+        <% if (availableUsers && availableUsers.length > 0) { %>
+          <form action="/projects/<%= project.id %>/members" method="POST" class="add-member-form">
+            <div class="form-group">
+              <label for="user_id" class="form-label">Chọn người dùng:</label>
+              <select name="user_id" id="user_id" class="form-control" required>
+                <option value="">-- Chọn thành viên --</option>
+                <% availableUsers.forEach(function(u) { %>
+                  <option value="<%= u.id %>"><%= u.full_name %> (<%= u.username %> - <%= u.role %>)</option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="member_role" class="form-label">Vai trò trong dự án:</label>
+              <select name="role" id="member_role" class="form-control">
+                <option value="Project Manager">Project Manager</option>
+                <option value="Developer" selected>Developer</option>
+                <option value="Tester">Tester</option>
+                <option value="Member">Member</option>
+                <option value="Viewer">Viewer</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary btn-block">+ Thêm Thành Viên</button>
+          </form>
+        <% } else { %>
+          <p class="text-muted text-sm">Tất cả người dùng hiện tại đều đã là thành viên của dự án.</p>
+        <% } %>
+      </div>
+    </section>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

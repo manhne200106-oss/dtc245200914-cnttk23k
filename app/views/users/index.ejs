@@ -1,0 +1,72 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container">
+  <%- include('../partials/alerts') %>
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Quản Lý Người Dùng</h1>
+      <p class="page-subtitle">Danh sách tài khoản nhân sự và vai trò trong hệ thống</p>
+    </div>
+    <div class="header-actions">
+      <a href="/users/new" class="btn btn-primary">+ Thêm Người Dùng</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <% if (users && users.length > 0) { %>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mã</th>
+                <th>Họ & Tên</th>
+                <th>Tên Đăng Nhập</th>
+                <th>Email</th>
+                <th>Vai Trò</th>
+                <th>Ngày Tạo</th>
+                <th class="text-right">Hành Động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% users.forEach(function(u) { %>
+                <tr>
+                  <td><code>#<%= u.id %></code></td>
+                  <td>
+                    <div class="user-cell">
+                      <div class="member-avatar">
+                        <%= u.full_name ? u.full_name.charAt(0).toUpperCase() : 'U' %>
+                      </div>
+                      <span class="font-bold"><%= u.full_name %></span>
+                    </div>
+                  </td>
+                  <td><code><%= u.username %></code></td>
+                  <td><%= u.email %></td>
+                  <td>
+                    <span class="badge badge-info"><%= u.role %></span>
+                  </td>
+                  <td class="text-muted"><%= formatDate(u.created_at) %></td>
+                  <td class="text-right table-actions">
+                    <a href="/users/<%= u.id %>/edit" class="btn btn-xs btn-secondary">Sửa</a>
+                    <form action="/users/<%= u.id %>?_method=DELETE" method="POST" class="inline-form" onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng <%= u.full_name %>?');">
+                      <button type="submit" class="btn btn-xs btn-danger">Xóa</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-state">
+          <p>Chưa có người dùng nào.</p>
+          <a href="/users/new" class="btn btn-primary btn-sm">+ Thêm người dùng đầu tiên</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

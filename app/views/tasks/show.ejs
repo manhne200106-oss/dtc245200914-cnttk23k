@@ -1,0 +1,125 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container">
+  <%- include('../partials/alerts') %>
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a href="/">Dashboard</a> &raquo;
+    <a href="/projects">Dự án</a> &raquo;
+    <a href="/projects/<%= task.project_id %>"><%= task.project_name %></a> &raquo;
+    <a href="/tasks">Công việc</a> &raquo;
+    <span>#<%= task.id %></span>
+  </nav>
+
+  <!-- Task Detail Card -->
+  <div class="card detail-header-card">
+    <div class="detail-header-flex">
+      <div>
+        <div class="detail-title-row">
+          <h1 class="page-title"><%= task.title %></h1>
+          <% const statusBadge = getStatusBadge(task.status); %>
+          <% const priorityBadge = getPriorityBadge(task.priority); %>
+          <span class="badge <%= statusBadge.class %>"><%= statusBadge.label %></span>
+          <span class="badge <%= priorityBadge.class %>">Ưu tiên: <%= priorityBadge.label %></span>
+        </div>
+
+        <div class="meta-row">
+          <span>📁 Dự án: <a href="/projects/<%= task.project_id %>" class="font-bold text-primary"><%= task.project_name %></a></span>
+          <span>👤 Người phụ trách:
+            <strong><%= task.assignee_name ? task.assignee_name + ' (' + task.assignee_email + ')' : 'Chưa phân công' %></strong>
+          </span>
+          <span>📅 Ngày tạo: <strong><%= formatDate(task.created_at) %></strong></span>
+          <span>🔄 Cập nhật: <strong><%= formatDate(task.updated_at) %></strong></span>
+        </div>
+      </div>
+
+      <div class="detail-actions">
+        <a href="/tasks/<%= task.id %>/edit" class="btn btn-secondary">✏ Chỉnh Sửa</a>
+        <form action="/tasks/<%= task.id %>?_method=DELETE" method="POST" class="inline-form" onsubmit="return confirm('Bạn có chắc chắn muốn xóa công việc này?');">
+          <button type="submit" class="btn btn-danger">🗑 Xóa</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Description Block -->
+    <div class="task-description-box">
+      <h3 class="task-section-title">Mô Tả Chi Tiết:</h3>
+      <p class="description-text"><%= task.description || 'Chưa có mô tả chi tiết cho công việc này.' %></p>
+    </div>
+  </div>
+
+  <!-- Comments Section -->
+  <section class="card comments-card">
+    <div class="card-header">
+      <h2 class="card-title">Trao Đổi & Bình Luận (<%= comments.length %>)</h2>
+    </div>
+    <div class="card-body">
+      <!-- Existing Comments -->
+      <% if (comments && comments.length > 0) { %>
+        <div class="comments-stream">
+          <% comments.forEach(function(c) { %>
+            <div class="comment-item">
+              <div class="comment-avatar">
+                <%= c.full_name ? c.full_name.charAt(0).toUpperCase() : '?' %>
+              </div>
+              <div class="comment-main">
+                <div class="comment-header">
+                  <span class="comment-author"><%= c.full_name || c.username || 'Khách' %></span>
+                  <% if (c.role) { %>
+                    <span class="badge badge-secondary badge-xs"><%= c.role %></span>
+                  <% } %>
+                  <span class="comment-time"><%= formatDate(c.created_at) %></span>
+                </div>
+                <div class="comment-body">
+                  <%= c.content %>
+                </div>
+              </div>
+              <div class="comment-actions">
+                <form action="/tasks/<%= task.id %>/comments/<%= c.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Xóa bình luận này?');">
+                  <button type="submit" class="btn-icon-danger" title="Xóa bình luận">&times;</button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      <% } else { %>
+        <p class="text-muted text-sm empty-comments">Chưa có bình luận nào cho công việc này. Hãy để lại trao đổi đầu tiên!</p>
+      <% } %>
+
+      <!-- Add Comment Form -->
+      <hr class="divider">
+      <form action="/tasks/<%= task.id %>/comments" method="POST" class="new-comment-form">
+        <h3 class="card-subtitle">Thêm Bình Luận Mới</h3>
+
+        <div class="form-group">
+          <label for="comment_user_id" class="form-label">Người bình luận:</label>
+          <select name="user_id" id="comment_user_id" class="form-control" required>
+            <% users.forEach(function(u) { %>
+              <option value="<%= u.id %>" <%= (task.assigned_to === u.id) ? 'selected' : '' %>>
+                <%= u.full_name %> (<%= u.username %> - <%= u.role %>)
+              </option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="comment_content" class="form-label required">Nội dung trao đổi:</label>
+          <textarea
+            name="content"
+            id="comment_content"
+            rows="3"
+            class="form-control"
+            placeholder="Nhập tiến độ cập nhật, thảo luận hoặc ghi chú..."
+            required
+          ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Gửi Bình Luận</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<%- include('../partials/footer') %>

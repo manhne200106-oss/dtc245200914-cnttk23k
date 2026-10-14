@@ -1,0 +1,91 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+<main class="main-content container form-container">
+  <%- include('../partials/alerts') %>
+
+  <nav class="breadcrumb">
+    <a href="/">Dashboard</a> &raquo;
+    <a href="/users">Người dùng</a> &raquo;
+    <span>Chỉnh sửa: <%= user.username %></span>
+  </nav>
+
+  <div class="card">
+    <div class="card-header">
+      <h1 class="card-title">Chỉnh Sửa Người Dùng: <%= user.username %></h1>
+    </div>
+    <div class="card-body">
+      <form action="/users/<%= user.id %>?_method=PUT" method="POST">
+        <div class="form-group">
+          <label for="username" class="form-label">Tên Đăng Nhập:</label>
+          <input
+            type="text"
+            id="username"
+            class="form-control"
+            value="<%= user.username %>"
+            disabled
+          >
+          <small class="form-text">Tên đăng nhập không thể thay đổi sau khi tạo.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="full_name" class="form-label required">Họ và Tên:</label>
+          <input
+            type="text"
+            name="full_name"
+            id="full_name"
+            class="form-control"
+            value="<%= user.full_name || '' %>"
+            required
+            maxlength="100"
+          >
+        </div>
+
+        <div class="grid-2-col">
+          <div class="form-group">
+            <label for="email" class="form-label required">Email:</label>
+            <input
+              type="email"
+              name="email"
+              id="email"
+              class="form-control"
+              value="<%= user.email || '' %>"
+              required
+              maxlength="100"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="role" class="form-label required">Vai Trò Hệ Thống:</label>
+            <select name="role" id="role" class="form-control" required>
+              <option value="Admin" <%= user.role === 'Admin' ? 'selected' : '' %>>Admin</option>
+              <option value="Project Manager" <%= user.role === 'Project Manager' ? 'selected' : '' %>>Project Manager</option>
+              <option value="Developer" <%= user.role === 'Developer' ? 'selected' : '' %>>Developer</option>
+              <option value="Tester" <%= user.role === 'Tester' ? 'selected' : '' %>>Tester</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Mật Khẩu Mới (Tùy chọn):</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="form-control"
+            placeholder="Để trống nếu không muốn đổi mật khẩu"
+            minlength="6"
+          >
+          <small class="form-text">Chỉ nhập nếu muốn cập nhật mật khẩu mới.</small>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Cập Nhật Người Dùng</button>
+          <a href="/users" class="btn btn-outline">Hủy Bỏ</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>
