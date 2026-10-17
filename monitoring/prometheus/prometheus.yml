@@ -1,0 +1,36 @@
+# ==============================================================================
+# Prometheus Scrape Configuration - Phase 5 (P5)
+# ==============================================================================
+
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  # ----------------------------------------------------------------------------
+  # 1. Prometheus Server Self-Monitoring
+  # ----------------------------------------------------------------------------
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # ----------------------------------------------------------------------------
+  # 2. Docker Containers Monitoring (docker-exporter)
+  # ----------------------------------------------------------------------------
+  - job_name: 'containers'
+    static_configs:
+      - targets: ['docker-exporter:8080']
+
+  # ----------------------------------------------------------------------------
+  # 3. Nginx Web Server Monitoring (nginx-prometheus-exporter)
+  # ----------------------------------------------------------------------------
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx-exporter:9113']
+
+  # ----------------------------------------------------------------------------
+  # 4. PostgreSQL Database Monitoring (postgres-exporter)
+  # ----------------------------------------------------------------------------
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']

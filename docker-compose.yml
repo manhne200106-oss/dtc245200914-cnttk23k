@@ -94,6 +94,97 @@ services:
     networks:
       - app-network
 
+  # ============================================================================
+  # 5. Docker Container Metrics Exporter (docker-exporter)
+  # ============================================================================
+  docker-exporter:
+    image: ghcr.io/davidborzek/docker-exporter:latest
+    container_name: pm-docker-exporter
+    restart: unless-stopped
+    user: "0"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - app-network
+
+  # ============================================================================
+  # 6. Nginx Web Server Metrics Exporter
+  # ============================================================================
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.3.0
+    container_name: pm-nginx-exporter
+    restart: unless-stopped
+    command:
+      - '-nginx.scrape-uri=http://nginx:80/stub_status'
+    depends_on:
+      - nginx
+    networks:
+      - app-network
+
+  # ============================================================================
+  # 7. PostgreSQL Database Metrics Exporter
+  # ============================================================================
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: pm-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER:-project_user}:${POSTGRES_PASSWORD:-project_secure_password_2026}@postgres:5432/${POSTGRES_DB:-project_management}?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # ============================================================================
+  # 8. Prometheus Monitoring Server
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: pm-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - docker-exporter
+      - nginx-exporter
+      - postgres-exporter
+    networks:
+      - app-network
+
+  # ============================================================================
+  # 9. Grafana Dashboards & Visualization Service
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: pm-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin_secure_password_2026}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: "/var/lib/grafana/dashboards/project_management.json"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./monitoring/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    networks:
+      - app-network
+
 # ==============================================================================
 # Persistent Named Volumes
 # ==============================================================================
@@ -102,6 +193,10 @@ volumes:
     name: pm_postgres_data
   pgadmin_data:
     name: pm_pgadmin_data
+  prometheus_data:
+    name: pm_prometheus_data
+  grafana_data:
+    name: pm_grafana_data
 
 # ==============================================================================
 # Isolated Docker Bridge Network
