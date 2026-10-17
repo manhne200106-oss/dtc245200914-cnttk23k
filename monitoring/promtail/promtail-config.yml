@@ -1,0 +1,49 @@
+# ==============================================================================
+# Promtail Log Shipper Configuration - Phase 6 (P6)
+# ==============================================================================
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+  log_level: info
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    batchwait: 1s
+    batchsize: 1048576
+
+scrape_configs:
+  - job_name: docker-containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+    relabel_configs:
+      # Filter to retain only project-management containers starting with /pm-
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(pm-.*)'
+        action: keep
+
+      # Clean container name (strip leading slash)
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+
+      # Extract Docker Compose service name if available
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service_name'
+
+      # Fallback service_name from container name if compose label is absent
+      - source_labels: ['service_name', 'container']
+        regex: ';pm-(.*)'
+        target_label: 'service_name'
+
+      # Log stream: stdout or stderr
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: 'stream'
+
+      # Global job label
+      - target_label: 'job'
+        replacement: 'docker'
