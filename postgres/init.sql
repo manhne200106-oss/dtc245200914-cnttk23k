@@ -113,10 +113,10 @@ CREATE INDEX idx_comments_user ON comments(user_id);
 
 -- Default hashed password: "password123" (bcrypt $2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO)
 INSERT INTO users (username, email, password_hash, full_name, role) VALUES
-('admin', 'admin@example.com', '$2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO', 'Nguyễn Văn Quản Trị', 'Admin'),
-('pm_alice', 'pm.alice@example.com', '$2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO', 'Trần Thị Quản Lý', 'Project Manager'),
-('dev_bob', 'dev.bob@example.com', '$2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO', 'Lê Văn Phát Triển', 'Developer'),
-('tester_charlie', 'tester.charlie@example.com', '$2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO', 'Phạm Thị Kiểm Thử', 'Tester');
+('admin', 'admin@example.com', '$2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO', 'Nguyễn Minh Quân', 'Admin'),
+('pm_alice', 'pm.alice@example.com', '$2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO', 'Trần Ngọc Anh', 'Project Manager'),
+('dev_bob', 'dev.bob@example.com', '$2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO', 'Lê Hoàng Nam', 'Developer'),
+('tester_charlie', 'tester.charlie@example.com', '$2a$10$jFsa3lHkG0X/Rua1LAw29ONeATWLHM9tEyUCBBUo5r.R6YkmGtkfO', 'Phạm Thu Trang', 'Tester');
 
 -- Projects
 INSERT INTO projects (name, description, status) VALUES
